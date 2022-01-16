@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+D=$(date +%Y%m%d%H%M%S)
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
@@ -16,7 +18,7 @@ mkdir $TD || true
 PRE=$2
 if [ -z "$PRE" ]
 then
-  PRE="dump"
+  PRE="dump-$D"
 fi
 
 
@@ -25,12 +27,11 @@ echo "Time now: `date`"
 echo
 
 mkdir -p dumps
-D=$(date +%Y%m%d%H%M%S)
 DB=$(sed -n "s/define( *'DB_NAME', *'\([^']*\)'.*/\1/p" wp-config.php)
 US=$(sed -n "s/define( *'DB_USER', *'\([^']*\)'.*/\1/p" wp-config.php)
 PS=$(sed -n "s/define( *'DB_PASSWORD', *'\([^']*\)'.*/\1/p" wp-config.php)
 
-F="$TD/$PRE-$DB_$D.sql.gz"
+F="$TD/$PRE-$DB.sql.gz"
 rm -f $F
 
 mysqldump --no-tablespaces -u $US -p"$PS" $DB | gzip > $F
