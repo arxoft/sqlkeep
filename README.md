@@ -5,7 +5,7 @@ Usage
 
 - `./dump` This will generate a mysqldump in ./dumps folder, and the generated file name has the timestamp.
 - `./dump autodumps` This will generate a mysqldump in ./autodumps folder
-- `./dump autodumps hourly` This will generate a mysqldump in ./autodumps folder, and the timestamp in the file name will be replace by 'hourly'.
+- `./dump autodumps hourly` This will generate a mysqldump in ./autodumps folder, and the timestamp in the file name will be replace by 'hourly'. Ex: `hourly-mydbname.sql.gz`
 
 For example, a cron job to take daily database backups would look like:
 
