@@ -3,9 +3,9 @@ Automate scheduled database dumps
 
 Usage
 
-- `./dump` This will generate a mysqldump in ./dumps folder
+- `./dump` This will generate a mysqldump in ./dumps folder, and the generated file name has the timestamp.
 - `./dump autodumps` This will generate a mysqldump in ./autodumps folder
-- `./dump autodumps hourly` This will generate a mysqldump in ./autodumps folder, and the file name will be prefixed with 'hourly'
+- `./dump autodumps hourly` This will generate a mysqldump in ./autodumps folder, and the timestamp in the file name will be replace by 'hourly'.
 
 For example, a cron job to take daily database backups would look like:
 
