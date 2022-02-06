@@ -26,7 +26,7 @@ set -e
 # Supported config files check
 if [ ! -f wp-config.php ]; then
     echo 
-    echo "None of the supported config file (Ex: wp-config.php for WordPress) exist. Aborting."
+    echo "None of the supported config files (Ex: wp-config.php for WordPress) exist. Aborting."
     echo "Alvida."
     echo
     exit
