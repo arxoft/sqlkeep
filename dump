@@ -1,39 +1,111 @@
 #!/bin/bash
 set -e
 
-D=$(date +%Y%m%d%H%M%S)
+# Usage Examples:
+# 
+# Generate an instant dump
+# ./dump
+#
+# Generate a dump prefixed with a label
+# ./dump label="hourly"
+#
+# Generate a dump prefixed with a label and push it to Dropbox
+# ./dump label="daily" push="dropbox"
 
+### EDIT FOLLOWING
+
+  # Database DETAILS
+  # Leaving empty if this is WP site with wp-config.php having DB details
+  DB=""
+  US=""
+  PS=""
+
+  # Target Directory
+  TD="dumps"
+
+  # Dropbox Details
+  DBXCLIENT="Project-X"
+  DBXTOKEN="ABTRbfT9s7UAAAAAAAAAAUzVgk2XxFgxJE271rz4naFEAlDeZ3q5bwfoPRqpJr5X"
+
+### STOP EDITING 
+
+# Date Stuff
+TS=$(date +%Y%m%d%H%M%S)
+TSYEAR=$(date +%Y)
+TSMONTH=$(date +%m)
+TSDAY=$(date +%d)
+
+# CLI Arguments
+push=""
+label="instant"
+
+for ARGUMENT in "$@"
+do
+  KEY=$(echo $ARGUMENT | cut -f1 -d=)
+  KEY_LENGTH=${#KEY}
+  VALUE="${ARGUMENT:$KEY_LENGTH+1}"
+  export "$KEY"="$VALUE"
+done
+
+if [[ $push = "" ]]; then 
+  DBXTOKEN=""
+fi
+
+# File prefix
+PRE=$label
+if [[ $label = "instant" ]]
+then
+  PRE="instant-$TS"
+fi
+
+# Cron Safe working dir
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
-# Target Directory
-TD=$1
-if [ -z "$TD" ]
-then
-  TD="dumps"
-fi
-mkdir $TD || true
+mkdir -p $TD >/dev/null 2>&1
 
-# File prefix
-PRE=$2
-if [ -z "$PRE" ]
-then
-  PRE="dump-$D"
-fi
-
-
-echo
-echo "Time now: `date`"
-echo
-
-mkdir -p dumps
 DB=$(sed -n "s/define( *'DB_NAME', *'\([^']*\)'.*/\1/p" wp-config.php)
 US=$(sed -n "s/define( *'DB_USER', *'\([^']*\)'.*/\1/p" wp-config.php)
 PS=$(sed -n "s/define( *'DB_PASSWORD', *'\([^']*\)'.*/\1/p" wp-config.php)
 
-F="$TD/$PRE-$DB.sql.gz"
-rm -f $F
+# File Name
+FN="$PRE-$DB.sql.gz"
 
-mysqldump --no-tablespaces -u $US -p"$PS" $DB | gzip > $F
+# File Path
+FP="$TD/$FN"
+rm -f $FP
 
-ls -lha $TD/ | grep $D
+echo
+echo "Time now: `date`" 
+echo "DB Name: $DB"
+
+mysqldump --no-tablespaces -u $US -p"$PS" $DB | gzip > $FP
+
+# File Size
+FS=$(ls -lh $FP | awk '{print $5}') 
+
+echo 
+echo "Success"
+echo "$FP ($FS)"
+
+if [[ $DBXTOKEN = "" ]]; then   
+  # : # Do Nothing
+  echo
+  echo "Not pushing dump to Dropbox. Push not requested, or OAuth Token not provided."
+else 
+  echo 
+  echo "Pushing to Dropbox."
+  DBXTD="/$DBXCLIENT/$TD/$label/$TSYEAR/$TSMONTH/$TSDAY/$FN"
+
+  curl -X POST https://content.dropboxapi.com/2/files/upload \
+  --header "Authorization: Bearer $DBXTOKEN" \
+  --header "Dropbox-API-Arg: {\"path\": \"$DBXTD\",\"mode\": \"add\",\"autorename\": true,\"mute\": true,\"strict_conflict\": false}" \
+  --header "Content-Type: application/octet-stream" \
+  --data-binary @"$FP"
+
+  echo
+  echo "Done" 
+fi
+
+echo
+echo "Alvida"
