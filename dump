@@ -19,16 +19,18 @@ set -e
 
   # Dropbox Details
   DBXCLIENT="SCMDOJO-v2"
-  DBXTOKEN="[Dropbox OAuth Access Token here]"
+  DBXTOKEN=""
 
 ### STOP EDITING 
 
+# Cron Safe working dir
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR
+
 # Supported config files check
 if [ ! -f wp-config.php ]; then
-    echo 
-    echo "None of the supported config files (Ex: wp-config.php for WordPress) exist. Aborting."
-    echo "Alvida."
-    echo
+    echo "None of the supported config file (Ex: wp-config.php for WordPress) exist . Aborting."
+    echo "Alvida"
     exit
 fi
 
@@ -60,10 +62,6 @@ if [[ $label = "instant" ]]
 then
   PRE="instant-$TS"
 fi
-
-# Cron Safe working dir
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd $SCRIPT_DIR
 
 mkdir -p $TD >/dev/null 2>&1
 
