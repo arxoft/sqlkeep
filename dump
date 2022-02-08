@@ -18,7 +18,7 @@ set -e
   TD="dumps"
 
   # Dropbox Details
-  DBXCLIENT="SCMDOJO-v2"
+  DBXCLIENT="PROJECT-X"
   DBXTOKEN=""
 
 ### STOP EDITING 
